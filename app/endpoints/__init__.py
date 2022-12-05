@@ -1,3 +1,4 @@
+from .jwt import JWTAuthen
 from .postgres import Postgres
 
 from app.endpoints.db import Base
@@ -11,6 +12,7 @@ class Singleton:
 class EndpointsManager(Singleton):
     def init_config(self, config):
         self.postgres = Postgres(config)
+        self.jwt = JWTAuthen(config)
 
     async def init_db(self):
         endpoints.postgres.init_session()

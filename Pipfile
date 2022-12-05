@@ -9,8 +9,9 @@ uvicorn = {version = "==0.20.0", extras = ["standard"]}
 pyaml-env = "==1.2.0"
 sqlalchemy = "==1.4.44"
 asyncpg = "==0.27.0"
-pyjwt = "==2.6.0"
-passlib = "==1.7.4"
+passlib = {version = "==1.7.4", extras = ["bcrypt"]}
+python-jose = {version = "==3.3.0", extras = ["cryptography"]}
+python-multipart = "==0.0.5"
 
 [dev-packages]
 
