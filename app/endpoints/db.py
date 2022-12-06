@@ -11,7 +11,7 @@ class Base(object):
 
     id = Column(BigInteger(), Identity(always=True), primary_key=True)
 
-class User(Base):
+class Users(Base):
     first_name = Column(String(256), nullable=False)
     last_name = Column(String(256), nullable=False)
     email = Column(String, index=True, nullable=False, unique=True)
