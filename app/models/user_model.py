@@ -3,11 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base_postgres import BasePostgres
 from app.schema import UserCreate, UserLogin
-from app.endpoints.db import User
+from app.endpoints.db import Users
 
-class UserModel(BasePostgres[User]):
+class UserModel(BasePostgres[Users]):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    model = User
+    model = Users
 
     @classmethod
     def hash_password(cls, password):
