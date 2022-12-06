@@ -8,27 +8,27 @@ from app.endpoints.db import Base
 TableType = TypeVar("TableType", bound=Base)
 
 class BasePostgres(Generic[TableType]):
-    def __init__(self, model: Type[TableType]):
-        """
-        Base Model with CRUD.
+    model: Type[TableType]
 
-        Parameters:
-            model: A SQLAlchemy model class
-            schema: A Pydantic model (schema) class
-        """
-        self.model = model
+    @classmethod
+    async def get(cls, db: AsyncSession, _id: str) -> Optional[TableType]:
+        return await db.get(cls.model, _id)
 
+    @classmethod
+    async def get_one(cls, db: AsyncSession, _filter: dict):
+        query = select(cls.model).filter_by(**_filter)
+        result = await db.execute(query)
+        return result.scalars().first()
 
-    async def get(self, db: AsyncSession, _id: str) -> Optional[TableType]:
-        return await db.get(self.model, _id)
-
-    async def get_by(self, db: AsyncSession, _filter: dict):
-        query = select(self.model).filter_by(**_filter)
+    @classmethod
+    async def get_list(cls, db: AsyncSession, _filter: dict):
+        query = select(cls.model).filter_by(**_filter)
         result = await db.execute(query)
         return result.scalars().all()
 
-    async def create(self, db: AsyncSession, obj_dict: dict):
-        obj_db = self.model(**obj_dict)
+    @classmethod
+    async def create(cls, db: AsyncSession, obj_dict: dict):
+        obj_db = cls.model(**obj_dict)
         db.add(obj_db)
         await db.commit()
         await db.refresh(obj_db)
