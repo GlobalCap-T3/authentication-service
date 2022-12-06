@@ -5,3 +5,7 @@ dev:
     user: !ENV ${POSTGRES_USER:postgres}
     password: !ENV ${POSTGRES_PASSWORD:postgres}
     database: !ENV ${POSTGRES_DATABASE:development}
+  jwt:
+    secret: !ENV ${JWT_SECRET:super_secret_token}
+    algorithm: !ENV ${JWT_ALGORITHM:HS256}
+    access_token_expire_minutes: !ENV ${JWT_ACCESS_LIFETIME_MIN:30}

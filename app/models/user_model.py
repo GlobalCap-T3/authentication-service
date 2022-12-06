@@ -2,14 +2,12 @@ from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base_postgres import BasePostgres
-from app.schema.user import UserCreate
-from app.endpoints.db import User
+from app.schema import UserCreate, UserLogin
+from app.endpoints.db import Users
 
-class UserModel(BasePostgres[User]):
+class UserModel(BasePostgres[Users]):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-    def __init__(self):
-        self.model = User
+    model = Users
 
     @classmethod
     def hash_password(cls, password):
@@ -19,8 +17,16 @@ class UserModel(BasePostgres[User]):
     def verify_password(cls, password, hash_password):
         return cls.pwd_context.verify(password, hash_password)
 
-    async def create_user(self, db: AsyncSession, obj: UserCreate):
+    @classmethod
+    async def create_user(cls, db: AsyncSession, obj: UserCreate):
         obj_dict = obj.dict()
         password = obj_dict.pop("password")
-        obj_dict["hashed_password"] = self.hash_password(password)
+        obj_dict["hashed_password"] = cls.hash_password(password)
         return await super().create(db, obj_dict)
+
+    @classmethod
+    async def authenticate(cls, db: AsyncSession, obj: UserLogin):
+        user = await super().get_one(db, {"email": obj.email})
+        if not user or not cls.verify_password(obj.password, user.hashed_password):
+            return None
+        return user
