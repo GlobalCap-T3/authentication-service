@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 
 from app.endpoints import endpoints
-from app.models.user_model import UserModel
+from app.service.user_service import UserService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/auth/login")
 
@@ -27,7 +27,7 @@ async def get_current_user(db = Depends(get_db), token: str = Depends(oauth2_sch
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = await UserModel.get_one(db, {"email": username})
+    user = await UserService.get_one(db, {"email": username})
     if user is None:
         raise credentials_exception
     return user

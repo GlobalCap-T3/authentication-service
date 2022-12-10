@@ -1,7 +1,7 @@
 from .jwt import JWTAuthen
 from .postgres import Postgres
 
-from app.endpoints.db import Base
+from app.models.model import Base
 
 class Singleton:
     def __new__(cls):
