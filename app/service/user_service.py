@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base_postgres import BasePostgres
 from app.schema import UserCreate, UserLogin
-from app.endpoints.db import Users
+from app.models.model import Users
 
-class UserModel(BasePostgres[Users]):
+class UserService(BasePostgres[Users]):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     model = Users
 
