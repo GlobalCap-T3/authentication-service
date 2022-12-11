@@ -47,4 +47,6 @@ class JWTAuthen:
 
     def verify_token(self, token):
         decode_token = jwt.decode(token, self.secret, algorithms=[self.algorithm])
-        return decode_token["expires"] >= datetime.utcnow()
+        if (decode_token.get("sub") is not None) \
+            and (datetime.utcfromtimestamp(decode_token["exp"]) >= datetime.utcnow()):
+            return decode_token

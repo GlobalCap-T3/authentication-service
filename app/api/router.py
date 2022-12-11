@@ -31,7 +31,7 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     }
 
 @router.post("/login", status_code=status.HTTP_200_OK, response_model=Token)
-async def verify_user(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+async def login_user(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     usr = UserLogin(email=form.username, password=form.password)
     logger.debug("[api] Attempting to login with %s.", usr.email)
     user = await UserService.authenticate(db, usr)
