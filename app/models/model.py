@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Identity, String, BigInteger
+from sqlalchemy import Column, Identity, String, BigInteger, DateTime
 from sqlalchemy.orm import registry, declared_attr
+from sqlalchemy.sql.functions import current_timestamp
 
 class_registry = registry()
 
@@ -10,6 +11,8 @@ class Base(object):
         return cls.__name__.lower()
 
     id = Column(BigInteger(), Identity(always=True), primary_key=True)
+    create_time = Column(DateTime(timezone=True), server_default=current_timestamp())
+    update_time = Column(DateTime(timezone=True), server_default=current_timestamp(), onupdate=current_timestamp())
 
 class Users(Base):
     first_name = Column(String(256), nullable=False)

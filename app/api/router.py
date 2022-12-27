@@ -7,17 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .deps import get_db, get_current_user
 from app.endpoints import endpoints
-from app.models import crud_user_model
+from app.service.user_service import UserService
 from app.schema import Token, UserCreate, UserLogin, UserBase
 
 logger = getLogger(f'uvicorn.{__name__}')
 router = APIRouter()
 
-@router.post("/signup", status_code=status.HTTP_201_CREATED, response_model=UserBase)
+@router.post("/signup", status_code=status.HTTP_201_CREATED, response_model=Token)
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     try:
         logger.debug("[api] Attempting to create user with email %s.", user.email)
-        await crud_user_model.create_user(db, user)
+        await UserService.create_user(db, user)
     except IntegrityError:
         logger.debug("[api] Create user %s failed.", user.email)
         raise HTTPException(
@@ -25,13 +25,16 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
             detail="Email already existed."
         )
     logger.debug("[api] Create user %s successful.", user.email)
-    return jsonable_encoder(user)
+    return {
+        "access_token": endpoints.jwt.generate_access_token(sub=user.email),
+        "token_type": "bearer"
+    }
 
 @router.post("/login", status_code=status.HTTP_200_OK, response_model=Token)
-async def verify_user(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+async def login_user(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     usr = UserLogin(email=form.username, password=form.password)
     logger.debug("[api] Attempting to login with %s.", usr.email)
-    user = await crud_user_model.authenticate(db, usr)
+    user = await UserService.authenticate(db, usr)
     if not user:
         logger.debug("[api] Authentication for %s failed.", usr.email)
         raise HTTPException(
@@ -39,7 +42,7 @@ async def verify_user(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSess
             detail="Incorrect username or password.",
             headers={"WWW-Authenticate": "Bearer"}
         )
-    logger.debug("[api] Authentication for %s succeeded", usr.email)
+    logger.debug("[api] Authentication for %s succeeded.", usr.email)
     return {
         "access_token": endpoints.jwt.generate_access_token(sub=user.email),
         "token_type": "bearer"

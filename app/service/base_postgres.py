@@ -3,7 +3,7 @@ from sqlalchemy import select
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.endpoints.db import Base
+from app.models.model import Base
 
 TableType = TypeVar("TableType", bound=Base)
 
